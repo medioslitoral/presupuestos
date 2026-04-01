@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test Fondo IMG</title>
+  <title>Presupuesto Litoral</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,47 +11,18 @@
       padding: 0;
     }
 
-    /* Elimina encabezados y pies del navegador al imprimir */
-    @page {
-      margin: 0;
-    }
+    @page { margin: 0; }
 
     body {
       font-family: Arial, sans-serif;
+      background: #f0f0f0;
     }
 
-    /* Contenedor página */
-    .pagina {
-      position: relative;
-      width: 794px;
-      margin: 0 auto;
-    }
-
-    /* Imagen de fondo */
-    .pagina img.fondo {
-      width: 100%;
-      display: block;
-    }
-
-    /* Contenido encima de la imagen */
-    .pagina .contenido {
-      position: absolute;
-      top: 160px;
-      left: 60px;
-      right: 60px;
-      color: #1a3a5c;
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    .contenido p      { margin-bottom: 14px; }
-    .contenido a      { color: #1a73e8; text-decoration: underline; }
-
-    /* Botón (no aparece en el PDF) */
+    /* ── BOTÓN (no aparece en PDF) ── */
     .btn-print {
       display: flex;
       justify-content: center;
-      margin: 24px 0;
+      padding: 24px 0;
     }
     .btn-print button {
       display: inline-flex;
@@ -72,6 +43,77 @@
 
     @media print {
       .btn-print { display: none; }
+      body       { background: #fff; }
+    }
+
+    /* ── PÁGINA ── */
+    .pagina {
+      position: relative;
+      width: 794px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    /* Imagen de fondo (header de la propuesta) */
+    .pagina img.fondo {
+      width: 100%;
+      display: block;
+    }
+
+    /* ── SECCIÓN DE DATOS DEL CLIENTE ── */
+    .datos-cliente {
+      padding: 24px 48px 20px;
+      border-bottom: 1px solid #c0ccd8;
+    }
+
+    .datos-fila {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .datos-izq {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .datos-der {
+      text-align: right;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Cada campo: label en negrita + valor normal */
+    .campo {
+      font-size: 13px;
+      color: #1a2e44;
+      line-height: 1.6;
+    }
+    .campo strong {
+      font-weight: bold;
+    }
+
+    /* ── SEPARADOR ── */
+    .separador {
+      border: none;
+      border-top: 1px solid #c0ccd8;
+      margin: 16px 48px 0;
+    }
+
+    /* ── FILA DE MAPA ── */
+    .fila-mapa {
+      padding: 12px 48px;
+      font-size: 13px;
+      color: #1a2e44;
+    }
+    .fila-mapa strong {
+      font-weight: bold;
+    }
+    .fila-mapa a {
+      color: #1a73e8;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -83,18 +125,73 @@
 
   <div class="pagina">
 
-    <!-- Imagen desde el repositorio -->
+    <!-- Header: imagen desde el repositorio -->
     <img class="fondo"
          src="https://medioslitoral.github.io/presupuestos/propuesta_comercial_base.png"
-         alt="Fondo propuesta" />
+         alt="Encabezado Litoral" />
 
-    <!-- Contenido encima de la imagen -->
-    <div class="contenido">
-      <p>Texto de prueba sobre la imagen.</p>
-      <p>Este es un <a href="https://www.google.com/maps" target="_blank">MAPA</a> clickeable en el PDF.</p>
+    <!-- Datos del cliente -->
+    <div class="datos-cliente">
+      <div class="datos-fila">
+
+        <!-- Columna izquierda -->
+        <div class="datos-izq">
+          <div class="campo"><strong>Cliente:</strong>&nbsp; <span id="campo-cliente">—</span></div>
+          <div class="campo"><strong>Anunciante:</strong>&nbsp; <span id="campo-anunciante">—</span></div>
+          <div class="campo"><strong>Contacto:</strong>&nbsp; <span id="campo-contacto">—</span></div>
+          <div class="campo"><strong>Cotizado por:</strong>&nbsp; <span id="campo-vendedor">—</span></div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="datos-der">
+          <div class="campo"><strong>Fecha:</strong>&nbsp; <span id="campo-fecha">—</span></div>
+        </div>
+
+      </div>
     </div>
 
-  </div>
+    <!-- Separador -->
+    <hr class="separador" />
+
+    <!-- Mapa -->
+    <div class="fila-mapa">
+      <strong>Mapa:</strong>&nbsp;
+      <a id="campo-mapa" href="#" target="_blank">Abrir Mapa</a>
+    </div>
+
+  </div><!-- fin .pagina -->
+
+
+  <script>
+    // Leer parámetro de la URL
+    function param(nombre) {
+      const p = new URLSearchParams(window.location.search);
+      const v = p.get(nombre);
+      return (v !== null && v.trim() !== '') ? v.trim() : null;
+    }
+
+    function completar() {
+      const campos = {
+        'campo-cliente':    param('cliente'),
+        'campo-anunciante': param('anunciante'),
+        'campo-contacto':   param('contacto'),
+        'campo-vendedor':   param('vendedor'),
+        'campo-fecha':      param('fecha'),
+      };
+
+      Object.entries(campos).forEach(([id, valor]) => {
+        const el = document.getElementById(id);
+        if (valor) el.textContent = valor;
+      });
+
+      // Mapa: siempre presente, se actualiza el href con el parámetro
+      const mapaUrl = param('mapa');
+      const elMapa  = document.getElementById('campo-mapa');
+      if (mapaUrl) elMapa.href = mapaUrl;
+    }
+
+    document.addEventListener('DOMContentLoaded', completar);
+  </script>
 
 </body>
 </html>
